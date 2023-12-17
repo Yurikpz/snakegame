@@ -69,13 +69,19 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         restartButton.setFocusable(false);
         restartButton.setVisible(false);
 
-        score = 0;
+        // Configuração do plano de fundo do botão
+        ImageIcon restartButtonIcon = new ImageIcon("RestartBackground.png");
+        restartButton.setIcon(restartButtonIcon);
+        restartButton.setHorizontalTextPosition(JButton.CENTER);
+        restartButton.setVerticalTextPosition(JButton.CENTER);
+        restartButton.setBorderPainted(false);
+        restartButton.setContentAreaFilled(false);
 
-        gamePanel.setLayout(null); // Usar layout null
-
+        // Configuração do tamanho e posição do botão
         restartButton.setBounds(580, 380, restartButton.getPreferredSize().width, restartButton.getPreferredSize().height);
-        restartButton.setMargin(new Insets(0, 0, 0, 0)); // Define margens mínimas
+        restartButton.setMargin(new Insets(0, 0, 0, 0));
         restartButton.setVisible(false);
+        gamePanel.setLayout(null);
         gamePanel.add(restartButton);
     }
 
