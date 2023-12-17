@@ -104,9 +104,9 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
                     g.drawImage(bodyImage, snake.get(i).x * 20, snake.get(i).y * 20, this);
                 }
             }
-
+    
             g.drawImage(fruitImage, fruit.x * 20, fruit.y * 20, this);
-
+    
             g.setColor(Color.WHITE);
             g.drawString("Score: " + score, 10, 20);
         } else {
@@ -114,7 +114,7 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
             g.drawString("Game Over - Score: " + score, 580, 360);
             stopBackgroundMusic();
         }
-    }
+    }    
 
     private void stopBackgroundMusic() {
         if (backgroundMusic != null && backgroundMusic.isRunning()) {
@@ -173,18 +173,19 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
 
     public void checkCollision() {
         Point head = snake.get(0);
-
-        if (head.x < 0 || head.x >= 40 || head.y < 0 || head.y >= 30) {
+    
+        // Ajuste para levar em consideração as dimensões reais da área de jogo
+        if (head.x < 0 || head.x >= getWidth() / 20 || head.y < 0 || head.y >= getHeight() / 20) {
             running = false;
         }
-
+    
         for (int i = 1; i < snake.size(); i++) {
             if (head.equals(snake.get(i))) {
                 running = false;
                 break;
             }
         }
-
+    
         if (!running) {
             timer.stop();
             restartButton.setVisible(true);
