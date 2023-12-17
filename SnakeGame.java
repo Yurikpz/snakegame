@@ -26,7 +26,6 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
     private Clip backgroundMusic;
 
     private BackgroundPanel gamePanel;
-    private BackgroundPanel restartPanel;
     private JButton restartButton;
 
     public SnakeGame() {
@@ -65,28 +64,25 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         gamePanel = new BackgroundPanel(backgroundImage);
         add(gamePanel);
 
-        restartPanel = new BackgroundPanel(new ImageIcon("RestartBackground.png").getImage());
-        restartPanel.setLayout(new BorderLayout());
-
         restartButton = new JButton("Restart");
         restartButton.addActionListener(this);
         restartButton.setFocusable(false);
         restartButton.setVisible(false);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.add(restartButton);
-        restartPanel.add(buttonPanel, BorderLayout.SOUTH);
-
         score = 0;
 
-        gamePanel.setLayout(new BorderLayout());
-        gamePanel.setDoubleBuffered(true);
+        gamePanel.setLayout(null); // Usar layout null
+
+        restartButton.setBounds(580, 380, restartButton.getPreferredSize().width, restartButton.getPreferredSize().height);
+        restartButton.setMargin(new Insets(0, 0, 0, 0)); // Define margens mínimas
+        restartButton.setVisible(false);
+        gamePanel.add(restartButton);
     }
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == restartButton) {
             restartGame();
-            switchToGamePanel();
+            restartButton.setVisible(false);
         } else if (running) {
             move();
             checkCollision();
@@ -104,9 +100,9 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
                     g.drawImage(bodyImage, snake.get(i).x * 20, snake.get(i).y * 20, this);
                 }
             }
-    
+
             g.drawImage(fruitImage, fruit.x * 20, fruit.y * 20, this);
-    
+
             g.setColor(Color.WHITE);
             g.drawString("Score: " + score, 10, 20);
         } else {
@@ -114,7 +110,7 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
             g.drawString("Game Over - Score: " + score, 580, 360);
             stopBackgroundMusic();
         }
-    }    
+    }
 
     private void stopBackgroundMusic() {
         if (backgroundMusic != null && backgroundMusic.isRunning()) {
@@ -136,9 +132,11 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         }
     }
 
-    public void keyReleased(KeyEvent e) {}
+    public void keyReleased(KeyEvent e) {
+    }
 
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {
+    }
 
     public void move() {
         Point head = snake.get(0);
@@ -173,23 +171,24 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
 
     public void checkCollision() {
         Point head = snake.get(0);
-    
+
         // Ajuste para levar em consideração as dimensões reais da área de jogo
         if (head.x < 0 || head.x >= getWidth() / 20 || head.y < 0 || head.y >= getHeight() / 20) {
             running = false;
         }
-    
+
         for (int i = 1; i < snake.size(); i++) {
             if (head.equals(snake.get(i))) {
                 running = false;
                 break;
             }
         }
-    
+
         if (!running) {
             timer.stop();
+            stopBackgroundMusic();
+            repaint();
             restartButton.setVisible(true);
-            switchToRestartPanel();
         }
     }
 
@@ -206,21 +205,7 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
 
         timer.start();
 
-        restartButton.setVisible(false);
-
         gamePanel.repaint();
-    }
-
-    private void switchToRestartPanel() {
-        gamePanel.setVisible(false);
-        restartPanel.setVisible(true);
-        repaint();
-    }
-
-    private void switchToGamePanel() {
-        gamePanel.setVisible(true);
-        restartPanel.setVisible(false);
-        repaint();
     }
 
     public static void main(String[] args) {
