@@ -28,12 +28,15 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
     private BackgroundPanel gamePanel;
     private JButton restartButton;
 
+    private MainMenu mainMenu;
+
+    private boolean paused = false;
+
     public SnakeGame() {
         setTitle("Snake Game");
         setSize(1280, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        
 
         snake = new ArrayList<>();
         snake.add(new Point(5, 5));
@@ -83,18 +86,24 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         gamePanel.setLayout(null);
         gamePanel.add(restartButton);
     }
+
     public JButton getRestartButton() {
         return restartButton;
     }
+
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == restartButton) {
             restartGame();
             restartButton.setVisible(false);
-        } else if (running) {
+        } else if (running && !paused) {
             move();
             checkCollision();
             checkFruit();
             repaint();
+        } else if (e.getSource() == mainMenu.playButton) {
+            mainMenu.setVisible(false);
+            restartGame();
+            running = true;
         }
     }
 
@@ -136,6 +145,20 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
             direction = KeyEvent.VK_UP;
         } else if ((key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) && (direction != KeyEvent.VK_UP)) {
             direction = KeyEvent.VK_DOWN;
+        } else if (key == KeyEvent.VK_P) {
+            if (!running) {
+                restartGame();
+                running = true;
+                paused = false;
+                timer.start(); // Iniciar o timer ao despausar
+            } else {
+                paused = !paused;
+                if (paused) {
+                    timer.stop();
+                } else {
+                    timer.start();
+                }
+            }
         }
     }
 
@@ -146,23 +169,25 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
     }
 
     public void move() {
-        Point head = snake.get(0);
-        Point newHead;
+        if (!paused) { // Verificar se o jogo não está pausado
+            Point head = snake.get(0);
+            Point newHead;
 
-        if (direction == KeyEvent.VK_LEFT) {
-            newHead = new Point(head.x - 1, head.y);
-        } else if (direction == KeyEvent.VK_RIGHT) {
-            newHead = new Point(head.x + 1, head.y);
-        } else if (direction == KeyEvent.VK_UP) {
-            newHead = new Point(head.x, head.y - 1);
-        } else {
-            newHead = new Point(head.x, head.y + 1);
-        }
+            if (direction == KeyEvent.VK_LEFT) {
+                newHead = new Point(head.x - 1, head.y);
+            } else if (direction == KeyEvent.VK_RIGHT) {
+                newHead = new Point(head.x + 1, head.y);
+            } else if (direction == KeyEvent.VK_UP) {
+                newHead = new Point(head.x, head.y - 1);
+            } else {
+                newHead = new Point(head.x, head.y + 1);
+            }
 
-        snake.add(0, newHead);
+            snake.add(0, newHead);
 
-        if (!checkFruit()) {
-            snake.remove(snake.size() - 1);
+            if (!checkFruit()) {
+                snake.remove(snake.size() - 1);
+            }
         }
     }
 
@@ -236,5 +261,41 @@ class BackgroundPanel extends JPanel {
 
         SnakeGame snakeGame = (SnakeGame) SwingUtilities.getWindowAncestor(this);
         snakeGame.draw(g);
+    }
+}
+
+class MainMenu extends JFrame implements ActionListener {
+
+    public JButton playButton;
+    public JButton exitButton;
+
+    public MainMenu() {
+        setTitle("Snake Game - Menu");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        playButton = new JButton("Jogar");
+        playButton.addActionListener(this);
+
+        exitButton = new JButton("Fechar Jogo");
+        exitButton.addActionListener(this);
+
+        JPanel panel = new JPanel(new GridLayout(2, 1));
+        panel.add(playButton);
+        panel.add(exitButton);
+
+        add(panel, BorderLayout.CENTER);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == playButton) {
+            SnakeGame snakeGame = new SnakeGame();
+            snakeGame.setVisible(true);
+            dispose();
+        } else if (e.getSource() == exitButton) {
+            System.exit(0);
+        }
     }
 }
