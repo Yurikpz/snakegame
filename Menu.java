@@ -18,7 +18,7 @@ public class Menu extends JFrame implements ActionListener {
         ImageIcon scaledImage = new ImageIcon(img);
 
         JLabel backgroundLabel = new JLabel(scaledImage);
-        backgroundLabel.setLayout(null); // Usando o layout nulo
+        backgroundLabel.setLayout(null); 
 
         startImage = new ImageIcon("StartGameBackground.png");
         startLabel = new JLabel(startImage);
@@ -42,7 +42,7 @@ public class Menu extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Implementation not needed for this example
+        
     }
 
     public static void main(String[] args) {
