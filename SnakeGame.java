@@ -18,11 +18,6 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
     private Point fruit;
     private int score;
 
-    private Image headImage;
-    private Image bodyImage;
-    private Image fruitImage;
-    private Image backgroundImage;
-
     private Clip backgroundMusic;
 
     private BackgroundPanel gamePanel;
@@ -43,11 +38,6 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
 
         fruit = new Point(10, 10);
 
-        headImage = new ImageIcon("head.png").getImage();
-        bodyImage = new ImageIcon("body.png").getImage();
-        fruitImage = new ImageIcon("fruit.png").getImage();
-        backgroundImage = new ImageIcon("Background.png").getImage();
-
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource("background_music.wav"));
             backgroundMusic = AudioSystem.getClip();
@@ -63,7 +53,7 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         addKeyListener(this);
         setFocusable(true);
 
-        gamePanel = new BackgroundPanel(backgroundImage);
+        gamePanel = new BackgroundPanel();
         add(gamePanel);
 
         restartButton = new JButton("");
@@ -84,9 +74,8 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         gamePanel.setLayout(null);
         gamePanel.add(restartButton);
     }
-    
+
     private void updateBackground() {
-        gamePanel.setBackgroundImage(backgroundImage);
         gamePanel.repaint();
     }
 
@@ -110,27 +99,76 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         if (running) {
             for (int i = 0; i < snake.size(); i++) {
                 if (i == 0) {
-                    g.drawImage(headImage, snake.get(i).x * 20, snake.get(i).y * 20, this);
+                    // Desenha um quadrado no estilo neon para a cabeça da cobra
+                    drawNeonSquare(g, snake.get(i).x * 20, snake.get(i).y * 20);
                 } else {
-                    g.drawImage(bodyImage, snake.get(i).x * 20, snake.get(i).y * 20, this);
+                    // Desenha um quadrado no estilo neon para o corpo da cobra
+                    drawNeonSquare(g, snake.get(i).x * 20, snake.get(i).y * 20);
                 }
             }
 
-            g.drawImage(fruitImage, fruit.x * 20, fruit.y * 20, this);
+            // Desenha a fruta no estilo neon com brilho
+            drawNeonFruit(g, fruit.x * 20, fruit.y * 20);
 
             g.setColor(Color.WHITE);
-            g.drawString("Score: " + score, 10, 20);
+            g.drawString("Score: " + score, 30, 30);
         } else {
-            g.setColor(Color.WHITE);
-            g.drawString("Game Over - Score: " + score, 580, 360);
-            stopBackgroundMusic();
+             g.setColor(Color.WHITE);
+        Font gameOverFont = new Font("True Lies", Font.BOLD, 30);
+        g.setFont(gameOverFont);
+
+        // Obtenha a métrica da fonte para determinar a largura do texto
+        FontMetrics fontMetrics = g.getFontMetrics(gameOverFont);
+        String scoreText = "Score: " + score;
+        int textWidth = fontMetrics.stringWidth(scoreText);
+
+        // Calcule a posição x para centralizar o texto na tela
+        int x = (getWidth() - textWidth) / 2;
+
+        // Desenhe o texto com uma borda ao redor
+        g.setColor(new Color(135, 206, 250)); // Azul claro
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                g.drawString(scoreText, x + i, 360 + j);
+            }
         }
+
+        g.setColor(Color.WHITE);
+        g.drawString(scoreText, x, 360);
+        stopBackgroundMusic();
     }
+}
 
     private void stopBackgroundMusic() {
         if (backgroundMusic != null && backgroundMusic.isRunning()) {
             backgroundMusic.stop();
         }
+    }
+
+    private void drawNeonSquare(Graphics g, int x, int y) {
+        // Cria um gradiente para o brilho externo
+        GradientPaint gradient = new GradientPaint(x, y, new Color(255, 255, 255, 100), x + 20, y + 20, new Color(255, 255, 255, 0));
+
+        // Pinta o quadrado principal com a cor do estilo neon
+        g.setColor(new Color(0, 255, 255));
+        g.fillRect(x, y, 20, 20);
+
+        // Pinta o brilho externo usando o gradiente
+        ((Graphics2D) g).setPaint(gradient);
+        g.fillRect(x - 1, y - 1, 22, 22);
+    }
+
+    private void drawNeonFruit(Graphics g, int x, int y) {
+        // Cria um gradiente para o brilho externo
+        GradientPaint gradient = new GradientPaint(x, y, new Color(255, 255, 255, 100), x + 20, y + 20, new Color(255, 255, 255, 0));
+
+        // Pinta o quadrado principal com a cor do estilo neon
+        g.setColor(new Color(255, 0, 0)); // Cor vermelha para a fruta
+        g.fillRect(x, y, 20, 20);
+
+        // Pinta o brilho externo usando o gradiente
+        ((Graphics2D) g).setPaint(gradient);
+        g.fillRect(x - 1, y - 1, 22, 22);
     }
 
     public void keyPressed(KeyEvent e) {
@@ -202,26 +240,26 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
 
     public void checkCollision() {
         Point head = snake.get(0);
-    
+
         if (head.x < 0 || head.x >= getWidth() / 20 || head.y < 0 || head.y >= getHeight() / 20) {
             running = false;
         }
-    
+
         for (int i = 1; i < snake.size(); i++) {
             if (head.equals(snake.get(i))) {
                 running = false;
                 break;
             }
         }
-    
+
         if (!running) {
             timer.stop();
             stopBackgroundMusic();
             repaint();
             restartButton.setVisible(true);
-    
+
             // Altere a imagem de fundo para a tela de Game Over
-            backgroundImage = new ImageIcon("GameOverBackground.png").getImage();
+            gamePanel.setBackgroundImage(new ImageIcon("GameOverBackground.png").getImage());
             updateBackground(); // Chama o método para atualizar o BackgroundPanel
         }
     }
@@ -233,15 +271,15 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         running = true;
         fruit = new Point(10, 10);
         score = 0;
-    
+
         // Altere a imagem de fundo de acordo com a tela principal do jogo
-        backgroundImage = new ImageIcon("Background.png").getImage();
-    
+        gamePanel.setBackgroundImage(new ImageIcon("Background.png").getImage());
+
         backgroundMusic.setFramePosition(0);
         backgroundMusic.start();
-    
+
         timer.start();
-    
+
         updateBackground(); // Chama o método para atualizar o BackgroundPanel
     }
 
@@ -256,8 +294,8 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
 class BackgroundPanel extends JPanel {
     private Image backgroundImage;
 
-    public BackgroundPanel(Image backgroundImage) {
-        this.backgroundImage = backgroundImage;
+    public BackgroundPanel() {
+        this.backgroundImage = new ImageIcon("Background.png").getImage();
     }
 
     public void setBackgroundImage(Image backgroundImage) {
