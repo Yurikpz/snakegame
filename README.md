@@ -1,3 +1,8 @@
+# :bookmark: **SOBRE**
+<div align="justify ">
+Este projeto foi desenvolvido na disciplina de "Linguagens de Programação" da faculdade. O objetivo do projeto era criar um software distribuído, um jogo ou outra aplicação, utilizando as linguagens de programação apresentadas ao longo do ano durante a disciplina.
+</div>
+
 # 🚀 **CONTRIBUIDORES**
 
 <table>
