@@ -28,8 +28,6 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
     private BackgroundPanel gamePanel;
     private JButton restartButton;
 
-    private MainMenu mainMenu;
-
     private boolean paused = false;
 
     public SnakeGame() {
@@ -68,7 +66,7 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         gamePanel = new BackgroundPanel(backgroundImage);
         add(gamePanel);
 
-        restartButton = new JButton("Restart");
+        restartButton = new JButton("");
         restartButton.addActionListener(this);
         restartButton.setFocusable(false);
         restartButton.setVisible(false);
@@ -80,11 +78,16 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         restartButton.setBorderPainted(false);
         restartButton.setContentAreaFilled(false);
 
-        restartButton.setBounds(580, 380, restartButton.getPreferredSize().width, restartButton.getPreferredSize().height);
+        restartButton.setBounds(515, 380, restartButton.getPreferredSize().width, restartButton.getPreferredSize().height);
         restartButton.setMargin(new Insets(0, 0, 0, 0));
         restartButton.setVisible(false);
         gamePanel.setLayout(null);
         gamePanel.add(restartButton);
+    }
+    
+    private void updateBackground() {
+        gamePanel.setBackgroundImage(backgroundImage);
+        gamePanel.repaint();
     }
 
     public JButton getRestartButton() {
@@ -100,10 +103,6 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
             checkCollision();
             checkFruit();
             repaint();
-        } else if (e.getSource() == mainMenu.playButton) {
-            mainMenu.setVisible(false);
-            restartGame();
-            running = true;
         }
     }
 
@@ -150,7 +149,7 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
                 restartGame();
                 running = true;
                 paused = false;
-                timer.start(); // Iniciar o timer ao despausar
+                timer.start();
             } else {
                 paused = !paused;
                 if (paused) {
@@ -169,7 +168,7 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
     }
 
     public void move() {
-        if (!paused) { // Verificar se o jogo não está pausado
+        if (!paused) {
             Point head = snake.get(0);
             Point newHead;
 
@@ -203,23 +202,27 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
 
     public void checkCollision() {
         Point head = snake.get(0);
-
+    
         if (head.x < 0 || head.x >= getWidth() / 20 || head.y < 0 || head.y >= getHeight() / 20) {
             running = false;
         }
-
+    
         for (int i = 1; i < snake.size(); i++) {
             if (head.equals(snake.get(i))) {
                 running = false;
                 break;
             }
         }
-
+    
         if (!running) {
             timer.stop();
             stopBackgroundMusic();
             repaint();
             restartButton.setVisible(true);
+    
+            // Altere a imagem de fundo para a tela de Game Over
+            backgroundImage = new ImageIcon("GameOverBackground.png").getImage();
+            updateBackground(); // Chama o método para atualizar o BackgroundPanel
         }
     }
 
@@ -230,13 +233,16 @@ public class SnakeGame extends JFrame implements ActionListener, KeyListener {
         running = true;
         fruit = new Point(10, 10);
         score = 0;
-
+    
+        // Altere a imagem de fundo de acordo com a tela principal do jogo
+        backgroundImage = new ImageIcon("Background.png").getImage();
+    
         backgroundMusic.setFramePosition(0);
         backgroundMusic.start();
-
+    
         timer.start();
-
-        gamePanel.repaint();
+    
+        updateBackground(); // Chama o método para atualizar o BackgroundPanel
     }
 
     public static void main(String[] args) {
@@ -254,6 +260,10 @@ class BackgroundPanel extends JPanel {
         this.backgroundImage = backgroundImage;
     }
 
+    public void setBackgroundImage(Image backgroundImage) {
+        this.backgroundImage = backgroundImage;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -261,41 +271,5 @@ class BackgroundPanel extends JPanel {
 
         SnakeGame snakeGame = (SnakeGame) SwingUtilities.getWindowAncestor(this);
         snakeGame.draw(g);
-    }
-}
-
-class MainMenu extends JFrame implements ActionListener {
-
-    public JButton playButton;
-    public JButton exitButton;
-
-    public MainMenu() {
-        setTitle("Snake Game - Menu");
-        setSize(600, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-
-        playButton = new JButton("Jogar");
-        playButton.addActionListener(this);
-
-        exitButton = new JButton("Fechar Jogo");
-        exitButton.addActionListener(this);
-
-        JPanel panel = new JPanel(new GridLayout(2, 1));
-        panel.add(playButton);
-        panel.add(exitButton);
-
-        add(panel, BorderLayout.CENTER);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == playButton) {
-            SnakeGame snakeGame = new SnakeGame();
-            snakeGame.setVisible(true);
-            dispose();
-        } else if (e.getSource() == exitButton) {
-            System.exit(0);
-        }
     }
 }
